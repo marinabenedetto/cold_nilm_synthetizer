@@ -433,6 +433,9 @@ def read_plaid(
         meta = json.load(fbuffer)
     skips = 0
     counter = 0
+    
+    meta = [(index, item) for index, item in enumerate(meta)]
+    meta = dict(meta)
     for idx, data in tqdm(meta.items(), total=len(meta)):
         primary_category = data["appliance"]["type"].lower().replace(" ", "")
         category = matching_map.get(primary_category, primary_category)
