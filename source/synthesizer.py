@@ -212,8 +212,10 @@ def normalize_frequencies(
         Tuple[np.ndarray, np.ndarray]
     """
     freq_scaler = fundamental / frequency_standard
-    voltage = librosa.resample(voltage, sampling_rate, int(sampling_rate * freq_scaler))
-    current = librosa.resample(current, sampling_rate, int(sampling_rate * freq_scaler))
+    #voltage = librosa.resample(voltage, sampling_rate, int(sampling_rate * freq_scaler))
+    voltage = librosa.resample(voltage, orig_sr=sampling_rate, target_sr=int(sampling_rate * freq_scaler))
+    #current = librosa.resample(current, sampling_rate, int(sampling_rate * freq_scaler))
+    current = librosa.resample(current, orig_sr=sampling_rate, target_sr=int(sampling_rate * freq_scaler))
     assert len(voltage) == len(current)
     return voltage, current
 
