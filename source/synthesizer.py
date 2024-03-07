@@ -434,15 +434,36 @@ def read_plaid(
     skips = 0
     counter = 0
     
-    meta = [(index, item) for index, item in enumerate(meta)]
-    meta = dict(meta)
+    #meta = [(index, item) for index, item in enumerate(meta)]
+    #meta = dict(meta)
     for idx, data in tqdm(meta.items(), total=len(meta)):
-        primary_category = data["appliance"]["type"].lower().replace(" ", "")
+      appliance_data = data.get("appliance")
+      if appliance_data:
+            primary_category = appliance_data.get("type", "").lower().replace(" ", "")
+      else:
+        # Handle the case where "appliance" key is not found
+        primary_category = "unknown"
+        #primary_category = data["appliance"]["type"].lower().replace(" ", "")
         category = matching_map.get(primary_category, primary_category)
         sampling_rate = int(data["header"]["sampling_frequency"].replace("Hz", ""))
+        header_data = data.get("header")
+        if header_data:
+            sampling_frequency = header_data.get("sampling_frequency", "")
+            if sampling_frequency:
+                # Extract frequency value and convert it to an integer
+                sampling_rate = int(sampling_frequency.replace("Hz", ""))
+                # Continue with your code using sampling_rate
+            else:
+                # Handle the case where "sampling_frequency" key is not found
+                # or the value is empty
+                print("Warning: sampling frequency not found or empty for data:", idx)
+        else:
+            # Handle the case where "header" key is not found
+            print("Warning: header not found for data:", idx)
         if not category in dataset.keys():
             dataset[category] = {"current": [], "voltage": []}
-        filepath = os.path.join(dataset_path, idx + ".csv")
+        #filepath = os.path.join(dataset_path, idx + ".csv")
+        filepath = os.path.join(dataset_path, str(idx) + ".csv")
         # Load file with raw waveforms
         waveforms = pd.read_csv(filepath, names=["current", "voltage"]).astype(
             np.float32
