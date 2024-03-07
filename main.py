@@ -163,7 +163,7 @@ def run_sns(config: CustomConfigParser, kwargs: Dict[str, str]) -> None:
 
     print("patterns_path:", patterns_path)
 
-    os.makedirs(save_dir, exist_ok=True)
+    #os.makedirs(save_dir, exist_ok=True)
     print("Creating directory:", save_dir)
 
     
