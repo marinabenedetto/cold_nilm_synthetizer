@@ -133,18 +133,48 @@ def run_sns(config: CustomConfigParser, kwargs: Dict[str, str]) -> None:
     if make_logs:
         logging.info("Starting the SNS algorithm...")
     labels_path = os.path.join(save_dir, "labels")
+
+    
+    try:
+    # Attempt to perform some operation with labels_path
+    # For example, open the file or perform some file-related operation
+        with open(labels_path, "w") as f:
+            # Perform some operation with the file
+            f.write("This is a test.")
+
+        # If the operation is successful, log a message
+        logging.info("Labels file created successfully at %s", labels_path)
+
+    except Exception as e:
+        # If an error occurs, log an error message
+        logging.error("An error occurred while creating labels file: %s", str(e))
+
+
     patterns_hash = md5(
         dumps(
             {**config["matching_map"], **config["signal"], **config["filter"]},
             sort_keys=True,
         ).encode()
     ).hexdigest()
+
+    print("patterns_hash:", patterns_hash)
+    print("Creating directory:", save_dir)
     patterns_path = os.path.join(save_dir, "patterns-%s.npy" % patterns_hash)
-    os.makedirs(save_dir, exist_ok=True)
+
+    print("patterns_path:", patterns_path)
+
+    #os.makedirs(save_dir, exist_ok=True)
+    print("Creating directory:", save_dir)
+
+    
+
     try:
         patterns = np.load(patterns_path, allow_pickle=True).item()
         if make_logs:
             logging.info("Normalized signatures found and loaded successfully.")
+
+        
+
     except FileNotFoundError:
         if make_logs:
             logging.info("Normalized signatures not found. Processing from raw data...")
@@ -159,6 +189,7 @@ def run_sns(config: CustomConfigParser, kwargs: Dict[str, str]) -> None:
             limit=limit,
             make_logs=make_logs,
         )
+        print('Done')
         plaid_dataset = synthesizer.read_plaid(
             plaid_path,
             downsampling_rate=sampling_rate,
@@ -176,8 +207,12 @@ def run_sns(config: CustomConfigParser, kwargs: Dict[str, str]) -> None:
             (whited_dataset, plaid_dataset),
             make_logs,
         )
+        print(patterns)
+
         if make_logs:
             logging.info("Signatures normalized successfully. Saving...")
+
+
         np.save(patterns_path, patterns)
         if make_logs:
             logging.info(
